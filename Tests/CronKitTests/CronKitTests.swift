@@ -2,10 +2,9 @@ import XCTest
 @testable import CronKit
 
 final class CronKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(CronKit().text, "Hello, World!")
+    func testCronCommit() throws {
+        let dailyTask = DailyCronJob(name: "test", timeMinute: 30, timeHour: 12, operation: "/bin/sh -c echo \"test\"")
+        let response: String = try dailyTask.commit()
+        print(response)
     }
 }
