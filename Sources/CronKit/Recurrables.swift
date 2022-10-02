@@ -70,6 +70,13 @@ public protocol Recurrable {
     func commit() throws -> String
 }
 extension Recurrable {
+    public var outputFile: String {
+        get {
+            return ">/dev/null 2>&1"
+        }
+        set {}
+    }
+    
     public func commit() throws -> String {
         return try addCronJob(entry: self)
     }

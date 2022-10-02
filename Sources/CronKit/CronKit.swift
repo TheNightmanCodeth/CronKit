@@ -11,7 +11,6 @@ public struct DailyCronJob: DailyRecurrable {
     public var name: String
     public var time: CronTime
     public var operation: String
-    public var outputFile: String = ">/dev/null 2>&1"
     
     init(name: String, time: CronTime, operation: String, _ outputFile: String? = nil) {
         self.name = name
@@ -34,7 +33,6 @@ public struct WeeklyCronJob: WeeklyRecurrable {
     public var day: DayOfWeek
     public var time: CronTime
     public var operation: String
-    public var outputFile: String = ">/dev/null 2>&1"
     
     init(name: String, day: DayOfWeek, time: CronTime, operation: String, _ outputFile: String? = nil) {
         self.name = name
