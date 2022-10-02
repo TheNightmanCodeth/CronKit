@@ -4,7 +4,7 @@
 //
 //  Created by Joe Diragi on 9/29/22.
 //
-
+import Foundation
 /// Represents a day of the week
 public enum DayOfWeek: Int {
     case Sunday = 0
@@ -66,6 +66,10 @@ public protocol Recurrable {
     var outputFile: String { get set }
     /// Returns the entry to be added as cron job
     func toCronEntry() -> String
+    /// Creates crontab comment to make finding/modifying this cronjob easier
+    func makeLabel() throws -> String
+    /// Find a job in crontab and return the line number it was found on
+    static func findJob(_ identifier: String) -> Int
     /// Adds this job to crontab
     func commit() throws -> String
 }
@@ -79,6 +83,25 @@ extension Recurrable {
     
     public func commit() throws -> String {
         return try addCronJob(entry: self)
+    }
+    
+    public func makeLabel() throws -> String {
+        let dateString = Date().description
+        let regex = try NSRegularExpression(pattern: #"(.{0,}\:.{0,})\:.{0,}"#)
+        let matches = regex.matches(in: dateString, range: NSRange(location: 0, length: dateString.utf16.count))
+        if let match = matches.first {
+            if let range = Range(match.range(at: 1), in: dateString) {
+                return "## \(self.name) -- \(dateString[range])"
+            } else {
+                throw RecurrableError.invalidDateFormat("Couldn't get range in dateString")
+            }
+        } else {
+            throw RecurrableError.invalidDateFormat("Couldn't match regex")
+        }
+    }
+    
+    public static func findJob(_ identifier: String) -> Int {
+        return 0
     }
 }
 

@@ -9,6 +9,7 @@ import Foundation
 
 enum RecurrableError: Error {
     case noValues(String)
+    case invalidDateFormat(String)
 }
 
 extension Collection where Element == Optional<Any> {
@@ -29,17 +30,14 @@ public func addCronJob(entry: any Recurrable) throws -> String {
     cronWrite.standardInput = cronInput
     
     // Add newline to bottom of crontab
-    cronInput.fileHandleForWriting.write(#"\n"#.data(using: .utf8)!)
+    cronInput.fileHandleForWriting.write("\n".data(using: .utf8)!)
     
     // Label this entry
-    let dateString = Date().description
-    let regex = try NSRegularExpression(pattern: #"(.{0,}\:.{0,})\:.{0,}"#)
-    let matches = regex.matches(in: dateString, range: NSRange(location: 0, length: dateString.utf16.count))
-    if let match = matches.first {
-        if let range = Range(match.range(at: 1), in: dateString) {
-            cronInput.fileHandleForWriting.write("## \(entry.name) -- \(dateString[range])".data(using: .utf8)!)
-        }
-    }
+    let label = try entry.makeLabel()
+    cronInput.fileHandleForWriting.write(label.data(using: .utf8)!)
+    
+    // Linebreak
+    cronInput.fileHandleForWriting.write("\n".data(using: .utf8)!)
     
     // Add this job to crontab under label comment
     cronInput.fileHandleForWriting.write(entry.toCronEntry().data(using: .utf8)!)
